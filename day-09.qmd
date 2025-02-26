@@ -1,0 +1,38 @@
+---
+project:
+  title: "day-09"
+  output-dir: docs
+
+format:
+  html:
+    self-contained: true
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(visdat)
+```
+
+```{r}
+vis_dat(airquality)
+```
+```{r}
+airquality_cleaned <- airquality %>% 
+  distinct()
+vis_dat(airquality_cleaned)
+```
+
+```{r}
+# Remove
+airquality_cleaned <- airquality %>% 
+  drop_na()
+
+vis_dat(airquality_cleaned)
+```
+```{r}
+# To create the linear regression model, I used Ozone and Solar Radiation to measure their relationship and effect on the temperature. I think this is a valid model because it is statistically significant
+lm_model <- lm(Temp ~ Ozone * Solar.R , data = airquality_cleaned)
+summary(lm_model)
+```
+
