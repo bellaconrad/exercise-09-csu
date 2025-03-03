@@ -6,17 +6,22 @@ project:
 format:
   html:
     self-contained: true
+    
+execute:
+  echo: true
 ---
 
 ```{r}
 library(dplyr)
 library(tidyverse)
 library(visdat)
+library(broom)
 ```
 
 ```{r}
 vis_dat(airquality)
 ```
+
 ```{r}
 airquality_cleaned <- airquality %>% 
   distinct()
@@ -30,9 +35,38 @@ airquality_cleaned <- airquality %>%
 
 vis_dat(airquality_cleaned)
 ```
+
+# To create the linear regression model, I used Ozone and Temperature to measure their relationship. I think this is a valid model because it is statistically significant and because Ozone and temperature usually have a strong relationship.
+
 ```{r}
-# To create the linear regression model, I used Ozone and Solar Radiation to measure their relationship and effect on the temperature. I think this is a valid model because it is statistically significant
-lm_model <- lm(Temp ~ Ozone * Solar.R , data = airquality_cleaned)
+lm_model <- lm(Ozone ~ Temp, data = airquality_cleaned)
 summary(lm_model)
+```
+
+# The R-squared represents that the ozone (dependent variable) is 48.8% predicatable by temperature (independent variable). When looking at the plot below, it is important to recognize that there are a few outliers that could make a difference, but overall this data looks the best.
+
+```{r}
+plot(lm_model)
+```
+
+```{r}
+predicted_data <- augment(lm_model, data = airquality_cleaned)
+head(predicted_data)
+```
+```{r}
+correlation <-round(cor(predicted_data$Ozone, predicted_data$.fitted), 2)
+```
+
+```{r}
+ggplot(predicted_data, aes(x = .fitted, y = Ozone)) +
+  geom_point(color = "blue", alpha = 0.6) + 
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") + 
+  labs(
+    title = "Actual vs. Predicted Ozone Levels",
+    x = "Predicted Ozone (ppb)",
+    y = "Actual Ozone (ppb)",
+    subtitle = paste("Correlation:", correlation)
+  ) +
+  theme_minimal()
 ```
 
